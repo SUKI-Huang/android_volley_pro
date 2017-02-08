@@ -7,6 +7,7 @@ package com.holiestar.volleypro;
 import android.content.Context;
 import android.media.MediaPlayer;
 
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.volleypro.BaseVolleyPro;
 import com.volleypro.ContentHashMap;
@@ -32,6 +33,12 @@ public class Sample {
         this.context = context;
         init();
         initAction();
+
+    }
+
+    private void init() {
+        gson=new Gson();
+        volleyPro=new VolleyPro(context);
 
     }
 
