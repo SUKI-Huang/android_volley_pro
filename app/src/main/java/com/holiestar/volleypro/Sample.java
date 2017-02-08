@@ -7,7 +7,6 @@ package com.holiestar.volleypro;
 import android.content.Context;
 import android.media.MediaPlayer;
 
-import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.volleypro.BaseVolleyPro;
 import com.volleypro.ContentHashMap;
@@ -68,7 +67,7 @@ public class Sample {
     }
 
     private void load() {
-        String endpoint = "http://vtapi.azurewebsites.net/reponse.php";
+        String endpoint = "http://xxx.xxx.xxx/reponse.php";
 
         //already test all work!
         volleyPro.request(
