@@ -29,12 +29,12 @@ android {
 
 dependencies {
     //    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:support-annotations:25.1.1'
+    provided 'com.android.support:support-annotations:25.1.1'
     //    compile files('libs/org.apache.http.legacy.jar')
     provided files('libs/org.apache.http.legacy.jar')
-    compile 'com.google.code.gson:gson:2.4'
-    compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
-    compile('org.apache.httpcomponents:httpmime:4.3.6') {
+    provided 'com.google.code.gson:gson:2.4'
+    provided 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+    provided('org.apache.httpcomponents:httpmime:4.3.6') {
         exclude module: "httpclient"
     }
 }
