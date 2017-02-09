@@ -11,6 +11,7 @@ public class HttpError {
     public static class Code {
         public static final int NETWORK_UNAVAILABLE = 1;
         public static final int UNKNOW_ERROR = 2;
+        public static final int GSON_PARSE_ERROR = 3;
         public static final int ACCEPTED = 202;
         public static final int BAD_GATEWAY = 502;
         public static final int BAD_REQUEST = 400;
@@ -74,6 +75,7 @@ public class HttpError {
 
         private static String NETWORK_UNAVAILABLE = "Network unavailable";
         private static String UNKNOW_ERROR = "Unknow error";
+        private static String GSON_PARSE_ERROR="gson_parse_error";
         private static String ACCEPTED = "Accepted";
         private static String BAD_GATEWAY = "Bad Gateway";
         private static String BAD_REQUEST = "Bad Request";
@@ -138,6 +140,9 @@ public class HttpError {
                     break;
                 case HttpError.Code.UNKNOW_ERROR:
                     UNKNOW_ERROR = msg;
+                    break;
+                case HttpError.Code.GSON_PARSE_ERROR:
+                    GSON_PARSE_ERROR=msg;
                     break;
                 case HttpError.Code.ACCEPTED:
                     ACCEPTED = msg;
@@ -306,6 +311,8 @@ public class HttpError {
                     return NETWORK_UNAVAILABLE;
                 case HttpError.Code.UNKNOW_ERROR:
                     return UNKNOW_ERROR;
+                case Code.GSON_PARSE_ERROR:
+                    return GSON_PARSE_ERROR;
                 case HttpError.Code.ACCEPTED:
                     return ACCEPTED;
                 case HttpError.Code.BAD_GATEWAY:

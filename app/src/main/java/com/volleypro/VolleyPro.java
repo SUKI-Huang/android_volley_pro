@@ -101,7 +101,7 @@ public class VolleyPro extends BaseVolleyPro {
         if(isNetworkAvailable){
             if(isCacheExist && !isCacheExpired){
                 log(method, endpoint,SOURCE_CACHE);
-                callOnSuccess(cacheResult,cachePath);
+                callOnSuccess(cacheResult);
             }else{
                 log(method, endpoint,SOURCE_NETWORK);
                 requestFile(method, endpoint, header, parameters,cachePath,cacheResult , forceUseCacheOnNoNetwork,enableFileProgress);
@@ -109,7 +109,7 @@ public class VolleyPro extends BaseVolleyPro {
         }else{
             if(isCacheExist && forceUseCacheOnNoNetwork){
                 log(method, endpoint,SOURCE_CACHE);
-                callOnSuccess(cacheResult,cachePath);
+                callOnSuccess(cacheResult);
             }else{
                 log(method, endpoint,SOURCE_NONE);
                 callOnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));

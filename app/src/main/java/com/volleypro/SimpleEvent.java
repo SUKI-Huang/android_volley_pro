@@ -1,24 +1,28 @@
 package com.volleypro;
 
-import java.io.File;
-
 /**
  * Created by tony1 on 2/3/2017.
  */
 
-public class SimpleVolleyProEvent implements VolleyProEvent {
+public class SimpleEvent<T> implements BaseVolleyPro.Event<T> {
+    private Class<?> type;
 
-    public void OnSuccess(File file, String filePath) {
 
+    public SimpleEvent (Class<T> type){
+        this.type=type;
     }
 
-    public void OnSuccess(String result) {
-
+    public Class<?> getType(){
+        return type;
     }
 
+    public void OnSuccess(T result) {
+
+    }
     public void OnFailed(int code, String msg) {
 
     }
+
 
     public void OnFileProgress(float progress) {
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -15,6 +16,8 @@ import com.android.volley.toolbox.InputStreamRequest;
 import com.android.volley.toolbox.MultipartRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
@@ -27,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,23 +38,25 @@ import java.util.Map;
  * Created by tony1 on 1/18/2017.
  */
 
-public abstract class BaseVolleyPro {
+public class BaseVolleyPro<T> {
     private String TAG = getClass().getSimpleName();
 
     public static final String SOURCE_CACHE = "cache";
     public static final String SOURCE_NETWORK = "network";
     public static final String SOURCE_NONE = "none";
 
+    public interface Event<T> {
+        void OnSuccess(T result);
+        void OnFileProgress(float progress);
+        void OnMultiPartProgress(float progress);
+    }
+
     public static void initialize(Context context) {
         HttpError.Message.initialize(context.getApplicationContext());
     }
 
-    void OnSuccess(File file, String filePath) {
-        callOnSuccess(file, filePath);
-    }
-
-    void OnSuccess(String result) {
-        callOnSuccess(result);
+    void OnSuccess(Object object) {
+        callOnSuccess(object);
     }
 
     void OnFailed(int code, String msg) {
@@ -104,46 +110,59 @@ public abstract class BaseVolleyPro {
         }
     }
 
-    private SimpleVolleyProEvent simpleVolleyProEvent;
 
-    public void setOnEvent(SimpleVolleyProEvent simpleVolleyProEvent) {
-        this.simpleVolleyProEvent = simpleVolleyProEvent;
-    }
-
-
-    public final void callOnSuccess(String result) {
-        if (simpleVolleyProEvent == null) {
+    public final void callOnSuccess(Object result) {
+        if (simpleEvent == null) {
             return;
         }
-        simpleVolleyProEvent.OnSuccess(result);
+        if((result instanceof String) && type.hashCode()==String.class.hashCode()){
+            simpleEvent.OnSuccess(result);
+            return;
+        }
+        if((result instanceof File) && type.hashCode()==File.class.hashCode()){
+            simpleEvent.OnSuccess(result);
+            return;
+        }
+
+        if(gson==null){
+            gson=new Gson();
+        }
+
+        if((result instanceof String)){
+            try {
+                simpleEvent.OnSuccess(gson.fromJson((String)result, type));
+            } catch (JsonSyntaxException e) {
+                e.printStackTrace();
+                simpleEvent.OnFailed(HttpError.Code.GSON_PARSE_ERROR, HttpError.Message.getMessage(HttpError.Code.GSON_PARSE_ERROR));
+            }
+            return;
+        }
+        Log.e(TAG,"callOnSuccess\t"+result.getClass().getSimpleName()+" can not cast to specified class");
+        simpleEvent.OnFailed(HttpError.Code.UNKNOW_ERROR, HttpError.Message.getMessage(HttpError.Code.UNKNOW_ERROR));
+
+
     }
 
     public final void callOnFileProgress(float progress) {
-        if (simpleVolleyProEvent == null) {
+        if (simpleEvent == null) {
             return;
         }
-        simpleVolleyProEvent.OnFileProgress(progress);
+        simpleEvent.OnFileProgress(progress);
     }
 
     public final void callOnMultiPartProgress(float progress) {
-        if (simpleVolleyProEvent == null) {
+        if (simpleEvent == null) {
             return;
         }
-        simpleVolleyProEvent.OnMultiPartProgress(progress);
+        simpleEvent.OnMultiPartProgress(progress);
     }
 
-    public final void callOnSuccess(File file, String filePath) {
-        if (simpleVolleyProEvent == null) {
-            return;
-        }
-        simpleVolleyProEvent.OnSuccess(file, filePath);
-    }
 
     public final void callOnFailed(int code, String msg) {
-        if (simpleVolleyProEvent == null) {
+        if (simpleEvent == null) {
             return;
         }
-        simpleVolleyProEvent.OnFailed(code, msg);
+        simpleEvent.OnFailed(code, msg);
     }
 
     private Context context;
@@ -152,6 +171,10 @@ public abstract class BaseVolleyPro {
     private StringRequest stringRequest;
     private MultipartRequest multipartRequest;
     private InputStreamRequest inputStreamRequest;
+    private Type type;
+    private SimpleEvent simpleEvent;
+    private Gson gson;
+
 
     private int retryTimes = 0;
     private int timeout = 60000;
@@ -164,6 +187,15 @@ public abstract class BaseVolleyPro {
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(context);
         }
+    }
+
+    public void setOnEvent(SimpleEvent simpleEvent) {
+        this.simpleEvent = simpleEvent;
+        this.type=simpleEvent.getType();
+    }
+
+    public void setGson(Gson gson){
+        this.gson=gson;
     }
 
     public final void request(String endpoint, final MultiPartOption multiPartOption) {
@@ -313,7 +345,7 @@ public abstract class BaseVolleyPro {
         if (!isNetworkAvailable()) {
             if (cacheResult != null && forceUseCacheOnNoNetwork) {
                 //force user cache on network unavailable
-                OnSuccess(cacheResult, cachePath);
+                OnSuccess(cacheResult);
             } else {
                 //network unavailable
                 OnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));
@@ -328,7 +360,7 @@ public abstract class BaseVolleyPro {
                     public void onResponse(byte[] result) {
                         isLoading = false;
                         writeCache(result, cachePath);
-                        OnSuccess(new File(cachePath), cachePath);
+                        OnSuccess(new File(cachePath));
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -336,7 +368,7 @@ public abstract class BaseVolleyPro {
                 isLoading = false;
                 if (cacheResult != null && (forceUseCacheOnNoNetwork != null && forceUseCacheOnNoNetwork)) {
                     //force user cache on network unavailable
-                    OnSuccess(cacheResult, cachePath);
+                    OnSuccess(cacheResult);
                     return;
                 } else {
                     //load failed
