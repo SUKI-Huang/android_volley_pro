@@ -10,7 +10,6 @@ import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyLog;
-import com.google.gson.JsonSyntaxException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -83,7 +82,7 @@ public class MultipartRequest extends Request<String> implements Response.Progre
 		{
 			return Response.error(new ParseError(e));
 		}
-		catch (JsonSyntaxException e)
+		catch (Exception e)
 		{
 			return Response.error(new ParseError(e));
 		}
