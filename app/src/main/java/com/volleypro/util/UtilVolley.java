@@ -156,6 +156,30 @@ public class UtilVolley {
         }).start();
     }
 
+    public static void writeByteAsFile(final byte[] response, final String filePath){
+        int count;
+        try {
+            long lenghtOfFile = response.length;
+
+            //covert reponse to input stream
+            InputStream input = new ByteArrayInputStream(response);
+            File file = new File(filePath);
+            BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file));
+            byte data[] = new byte[1024];
+//                            long total = 0;
+            while ((count = input.read(data)) != -1) {
+//                                total += count;
+                output.write(data, 0, count);
+            }
+
+            output.flush();
+            output.close();
+            input.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void writeByteAsync(final byte[] response, final String filePath) {
         if (response == null) {
             return;
@@ -164,27 +188,7 @@ public class UtilVolley {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                int count;
-                try {
-                    long lenghtOfFile = response.length;
-
-                    //covert reponse to input stream
-                    InputStream input = new ByteArrayInputStream(response);
-                    File file = new File(filePath);
-                    BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file));
-                    byte data[] = new byte[1024];
-//                            long total = 0;
-                    while ((count = input.read(data)) != -1) {
-//                                total += count;
-                        output.write(data, 0, count);
-                    }
-
-                    output.flush();
-                    output.close();
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                writeByteAsFile(response, filePath);
             }
         }).start();
 
