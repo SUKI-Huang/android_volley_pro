@@ -265,6 +265,7 @@ volleyPro.requestFile(
 ```
 
   -  Generic after string request:
+  
   Example is `DataItem`, change `DataItem` to the class you need, VolleyPro will convert via gson automatically
 ```
 String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
