@@ -115,27 +115,30 @@ public class BaseVolleyPro {
 
             @Override
             public void onProgress(final long transferredBytes, final long totalSize) {
-                if (multiPartOption.isEnableFileProgress() && totalSize > 0) {
+                //if enable file progress
+//                if (multiPartOption.isEnableFileProgress() && totalSize > 0) {
+//                    handler.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            callOnFileProgress((float) transferredBytes / (float) totalSize);
+//                        }
+//                    });
+//                }
+            }
+        };
+        if(multiPartOption.enableMultiPartProgress){
+            multipartRequest.setOnMultiPartProgress(new MultipartRequest.OnMultiPartProgress() {
+                @Override
+                public void onProgress(final long transferredBytes, final long totalSize) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            callOnFileProgress((float) transferredBytes / (float) totalSize);
+                            callOnMultiPartProgress((float) transferredBytes / (float) totalSize);
                         }
                     });
                 }
-            }
-        };
-        multipartRequest.setOnMultiPartProgress(new MultipartRequest.OnMultiPartProgress() {
-            @Override
-            public void onProgress(final long transferredBytes, final long totalSize) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callOnMultiPartProgress((float) transferredBytes / (float) totalSize);
-                    }
-                });
-            }
-        });
+            });
+        }
         multipartRequest.setRetryPolicy(new DefaultRetryPolicy(timeout, retryTimes, 0));
         isLoading = true;
         requestQueue.add(multipartRequest);
@@ -468,7 +471,7 @@ public class BaseVolleyPro {
     }
 
     public static class MultiPartOption {
-        private boolean enableFileProgress = false;
+        private boolean enableMultiPartProgress = false;
         private HashMap<String, String> header;
         private HashMap<String, ContentBody> parameters;
 
@@ -476,15 +479,14 @@ public class BaseVolleyPro {
             return header;
         }
 
-        public MultiPartOption enableFileProgress() {
-            enableFileProgress = true;
+        public boolean isEnableMultiPartProgress() {
+            return enableMultiPartProgress;
+        }
+
+        public MultiPartOption setEnableMultiPartProgress(boolean enableMultiPartProgress) {
+            this.enableMultiPartProgress = enableMultiPartProgress;
             return this;
         }
-
-        public boolean isEnableFileProgress() {
-            return enableFileProgress;
-        }
-
 
         public MultiPartOption setHeader(HashMap<String, String> header) {
             this.header = header;
