@@ -64,106 +64,114 @@ dependencies {
 
 **3. In your Java code**
 
-  -  String request(basic):
+  -  Basic string request:
 ```
-private String TAG = getClass().getSimpleName();
-private VolleyPro volleyPro;
+String endpoint = "https://xxx.xxx.xxx/xxx/xx/xx";
 
-public void initAction() {
-    volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
-        @Override
-        public void OnSuccess(String result) {
-            Log.i(TAG, result);
-        }
+volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
+    @Override
+    public void OnSuccess(String result) {
+        Log.i(TAG, result);
+    }
 
-        @Override
-        public void OnFailed(int code, String msg) {
-            Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
-        }
-    });
-}
+    @Override
+    public void OnFailed(int code, String msg) {
+        Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+    }
+});
+volleyPro.request(Method.GET, endpoint);
 
-private void load() {
-    String endpoint = "https://xxx.xxx.xxx/xxx/xx/xx";
+```
 
-    //request with method GET
-    volleyPro.request(Method.GET, endpoint);
+  -  Basic string request with header and parameters:
+```
+String endpoint = "https://xxx.xxx.xxx/xxx/xx/xx";
+volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
+    @Override
+    public void OnSuccess(String result) {
+        Log.i(TAG, result);
+    }
 
-    //request with method POST
-    volleyPro.request(
-            Method.POST,
-            endpoint,
-            new BaseVolleyPro.Option().setParameters(
-                    new HashMap<String, String>() {
-                        {
-                            put("name", "Suki");
-                            put("gender", "1");
+    @Override
+    public void OnFailed(int code, String msg) {
+        Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+    }
+});
+
+volleyPro.request(
+        Method.POST,
+        endpoint,
+        new BaseVolleyPro.Option()
+                .setHeader(
+                        new HashMap<String, String>() {
+                            {
+                                put("token", "xxxxxxxxxx");
+                                put("userid", "xxxxxxxxx");
+                            }
                         }
-                    }
-            )
-    );
-}
+                )
+                .setParameters(
+                        new HashMap<String, String>() {
+                            {
+                                put("name", "Suki");
+                                put("gender", "1");
+                            }
+                        }
+                )
+);
+
 ```
 
   -  String request(advanced):
 ```
-private String TAG = getClass().getSimpleName();
-private VolleyPro volleyPro;
+String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
+volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
+    @Override
+    public void OnSuccess(String result) {
+        Log.i(TAG, result);
+    }
 
-public void initAction() {
-    volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
-        @Override
-        public void OnSuccess(String result) {
-            Log.i(TAG, result);
-        }
+    @Override
+    public void OnFailed(int code, String msg) {
+        Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+    }
+});
 
-        @Override
-        public void OnFailed(int code, String msg) {
-            Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
-        }
-    });
-}
+volleyPro.request(
+        Method.GET,
+        endpoint,
+        new VolleyPro.Option()
+                //set header (optional)
+                .setHeader(
+                        new HashMap<String, String>() {{
+                            put("userid", "xxxx");
+                            put("usercode", "xxxx");
+                            put("apiKey", "xxxx");
+                        }}
+                )
+                //set parameters (optional)
+                .setParameters(
+                        new HashMap<String, String>() {{
+                            put("title", "this is title");
+                        }}
+                )
+                //set cache (optional)
+                .setCache(
+                        //cache path
+                        "data/data/" + getPackageName() + "/volleyCache.json",
 
-private void load(){
-    String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
-    volleyPro.request(
-            Method.GET,
-            endpoint,
-            new VolleyPro.Option()
-                    //set header (optional)
-                    .setHeader(
-                            new HashMap<String, String>() {{
-                                put("userid", "xxxx");
-                                put("usercode", "xxxx");
-                                put("apiKey", "xxxx");
-                            }}
-                    )
-                    //set parameters (optional)
-                    .setParameters(
-                            new HashMap<String, String>() {{
-                                put("title", "this is title");
-                            }}
-                    )
-                    //set cache (optional)
-                    .setCache(
-                            //cache path
-                            "data/data/" + getPackageName() + "/volleyCache.json",
+                        //expired time (millisecond)
+                        6000,
 
-                            //expired time (millisecond)
-                            6000,
+                        //if network is unavailable use older cache
+                        true
+                )
+);
 
-                            //if network is unavailable use older cache
-                            true
-                    )
-    );
-}
 ```
   - MultiPart request
 ```
-private String TAG = getClass().getSimpleName();
-private VolleyPro volleyPro;
-
-public void initAction() {
+    String endpoint = "https://xxx.xxx.xxx/xxx/xx/xx";
     volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
         @Override
         public void OnSuccess(String result) {
@@ -180,144 +188,128 @@ public void initAction() {
             Log.i(TAG, String.format("OnMultiPartProgress:%.2f", progress));
         }
     });
-}
 
-private void load() {
-    String endpoint = "https://xxx.xxx.xxx/xxx/xx/xx";
-    volleyPro.request(
-            endpoint,
-            new VolleyPro.MultiPartOption()
-                    .setHeader(
-                            new HashMap<String, String>() {{
-                                put("userid", "xxxx");
-                                put("usercode", "xxxx");
-                                put("apiKey", "xxxx");
-                            }}
-                    )
-                    //set parameters (optional)
-                    .setParameters(
-                            new ContentHashMap<String, ContentBody>() {{
-                                putText("title", "this is title");
-                                putFile("file", filePath);
-                                putFile("file", filePath);
-                                putFile("file", new File(filePath));
-                                putBinary("byte", getByte("filePath"), "xxx.jpg");
-                                putStream("stream", getFileInputStream(filePath), "xxx.jpg");
-                            }})
-                    .enableMultiPartProgress()
-    );
-}
+volleyPro.request(
+        endpoint,
+        new VolleyPro.MultiPartOption()
+                .setHeader(
+                        new HashMap<String, String>() {{
+                            put("userid", "xxxx");
+                            put("usercode", "xxxx");
+                            put("apiKey", "xxxx");
+                        }}
+                )
+                //set parameters (optional)
+                .setParameters(
+                        new ContentHashMap<String, ContentBody>() {{
+                            putText("title", "this is title");
+                            putFile("file", filePath);
+                            putFile("file", filePath);
+                            putFile("file", new File(filePath));
+                            putBinary("byte", getByte("filePath"), "xxx.jpg");
+                            putStream("stream", getFileInputStream(filePath), "xxx.jpg");
+                        }})
+                .enableMultiPartProgress()
+);
 ```
   -  File request:
 ```
-private String TAG = getClass().getSimpleName();
-private VolleyPro volleyPro;
+String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
+volleyPro.setOnEvent(new SimpleEvent<File>(File.class) {
+    @Override
+    public void OnSuccess(File file) {
+        Log.i(TAG, file.getAbsolutePath());
+    }
 
-public void initAction() {
-    volleyPro.setOnEvent(new SimpleEvent<File>(File.class) {
-        @Override
-        public void OnSuccess(File file) {
-            Log.i(TAG, file.getAbsolutePath());
-        }
+    @Override
+    public void OnFailed(int code, String msg) {
+        Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+    }
+    @Override
+    public void OnFileProgress(float progress) {
+        Log.i(TAG, String.format("OnFileProgress:%.2f", progress));
+    }
+});
 
-        @Override
-        public void OnFailed(int code, String msg) {
-            Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
-        }
-        @Override
-        public void OnFileProgress(float progress) {
-            Log.i(TAG, String.format("OnFileProgress:%.2f", progress));
-        }
-    });
-}
+volleyPro.requestFile(
+        Method.GET,
+        endpoint,
+        new VolleyPro.Option()
+                //set header (optional)
+                .setHeader(
+                        new HashMap<String, String>() {{
+                            put("userid", "xxxx");
+                            put("usercode", "xxxx");
+                            put("apiKey", "xxxx");
+                        }}
+                )
+                //set parameters (optional)
+                .setParameters(
+                        new HashMap<String, String>() {{
+                            put("title", "this is title");
+                        }}
+                )
+                //set parameters (optional)
+                .setCache(
+                        //cache path
+                        "data/data/" + getPackageName() + "/volleyCache.json",
 
-private void load(){
-    String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
-    volleyPro.requestFile(
-            Method.GET,
-            endpoint,
-            new VolleyPro.Option()
-                    //set header (optional)
-                    .setHeader(
-                            new HashMap<String, String>() {{
-                                put("userid", "xxxx");
-                                put("usercode", "xxxx");
-                                put("apiKey", "xxxx");
-                            }}
-                    )
-                    //set parameters (optional)
-                    .setParameters(
-                            new HashMap<String, String>() {{
-                                put("title", "this is title");
-                            }}
-                    )
-                    //set parameters (optional)
-                    .setCache(
-                            //cache path
-                            "data/data/" + getPackageName() + "/volleyCache.json",
+                        //expired time (millisecond)
+                        6000,
 
-                            //expired time (millisecond)
-                            6000,
+                        //if network is unavailable use older cache
+                        true
+                )
+                //enable FileProgress callback
+                .enableFileProgress()
+);
 
-                            //if network is unavailable use older cache
-                            true
-                    )
-                    //enable FileProgress callback
-                    .enableFileProgress()
-    );
-}
 ```
 
   -  Generic after string request:
 ```
-private String TAG = getClass().getSimpleName();
-private VolleyPro volleyPro;
+String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
+volleyPro.setOnEvent(new SimpleEvent<DataItem>(DataItem.class) {
+    @Override
+    public void OnSuccess(DataItem dataItem) {
+        Log.i(TAG, dataItem.getName());
+    }
 
-public void initAction() {
-    volleyPro.setOnEvent(new SimpleEvent<DataItem>(DataItem.class) {
-        @Override
-        public void OnSuccess(DataItem dataItem) {
-            Log.i(TAG, dataItem.getName());
-        }
+    @Override
+    public void OnFailed(int code, String msg) {
+        Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+    }
+});
 
-        @Override
-        public void OnFailed(int code, String msg) {
-            Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
-        }
-    });
-}
+volleyPro.request(
+        Method.GET,
+        endpoint,
+        new VolleyPro.Option()
+                //set header (optional)
+                .setHeader(
+                        new HashMap<String, String>() {{
+                            put("userid", "xxxx");
+                            put("usercode", "xxxx");
+                            put("apiKey", "xxxx");
+                        }}
+                )
+                //set parameters (optional)
+                .setParameters(
+                        new HashMap<String, String>() {{
+                            put("title", "this is title");
+                        }}
+                )
+                //set cahce (optional)
+                .setCache(
+                        //cache path
+                        "data/data/" + getPackageName() + "/volleyCache.json",
 
-private void load(){
-    String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
-    volleyPro.request(
-            Method.GET,
-            endpoint,
-            new VolleyPro.Option()
-                    //set header (optional)
-                    .setHeader(
-                            new HashMap<String, String>() {{
-                                put("userid", "xxxx");
-                                put("usercode", "xxxx");
-                                put("apiKey", "xxxx");
-                            }}
-                    )
-                    //set parameters (optional)
-                    .setParameters(
-                            new HashMap<String, String>() {{
-                                put("title", "this is title");
-                            }}
-                    )
-                    //set cahce (optional)
-                    .setCache(
-                            //cache path
-                            "data/data/" + getPackageName() + "/volleyCache.json",
+                        //expired time (millisecond)
+                        6000,
 
-                            //expired time (millisecond)
-                            6000,
+                        //if network is unavailable use older cache
+                        true
+                )
+);
 
-                            //if network is unavailable use older cache
-                            true
-                    )
-    );
-}
 ```
