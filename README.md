@@ -13,9 +13,9 @@ In the oringal Volley project, there are many kinds of request, developers use c
  
 ```gradle
 allprojects {
-	repositories {
-		maven { url "https://jitpack.io" }
-	}
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
 }
 ```
 
@@ -35,9 +35,9 @@ android {
     ...
 }
 dependencies {
-	compile 'com.github.SUKI-Huang:VolleyPro:1.0.13'
-	//Libraries down below are required
-	compile 'com.google.code.gson:gson:2.4'
+    compile 'com.github.SUKI-Huang:VolleyPro:1.0.13'
+    //Libraries down below are required
+    compile 'com.google.code.gson:gson:2.4'
     compile 'com.android.support:support-annotations:25.1.1'
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     compile('org.apache.httpcomponents:httpmime:4.3.6') {
@@ -144,7 +144,7 @@ private void load(){
                                 put("title", "this is title");
                             }}
                     )
-                    //set parameters (optional)
+                    //set cache (optional)
                     .setCache(
                             //cache path
                             "data/data/" + getPackageName() + "/volleyCache.json",
@@ -307,7 +307,7 @@ private void load(){
                                 put("title", "this is title");
                             }}
                     )
-                    //set parameters (optional)
+                    //set cahce (optional)
                     .setCache(
                             //cache path
                             "data/data/" + getPackageName() + "/volleyCache.json",
