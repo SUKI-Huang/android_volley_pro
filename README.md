@@ -169,23 +169,23 @@ volleyPro.request(
 ```
   - MultiPart request
 ```
-    String endpoint = "https://xxx.xxx.xxx/xxx/xx/xx";
-    volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
-        @Override
-        public void OnSuccess(String result) {
-            //on success
-        }
+String endpoint = "https://xxx.xxx.xxx/xxx/xx/xx";
+volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
+    @Override
+    public void OnSuccess(String result) {
+        //on success
+    }
 
-        @Override
-        public void OnFailed(int code, String msg) {
-            //on failed
-        }
+    @Override
+    public void OnFailed(int code, String msg) {
+        //on failed
+    }
 
-        @Override
-        public void OnMultiPartProgress(float progress) {
-            //uplaod progress
-        }
-    });
+    @Override
+    public void OnMultiPartProgress(float progress) {
+        //uplaod progress
+    }
+});
 
 volleyPro.request(
         endpoint,
