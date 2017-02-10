@@ -67,16 +67,15 @@ dependencies {
   -  Basic string request:
 ```
 String endpoint = "https://xxx.xxx.xxx/xxx/xx/xx";
-
 volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
     @Override
     public void OnSuccess(String result) {
-        Log.i(TAG, result);
+        //on success
     }
 
     @Override
     public void OnFailed(int code, String msg) {
-        Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+        //on failed
     }
 });
 volleyPro.request(Method.GET, endpoint);
@@ -89,12 +88,12 @@ String endpoint = "https://xxx.xxx.xxx/xxx/xx/xx";
 volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
     @Override
     public void OnSuccess(String result) {
-        Log.i(TAG, result);
+        //on success
     }
 
     @Override
     public void OnFailed(int code, String msg) {
-        Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+        //on failed
     }
 });
 
@@ -128,12 +127,12 @@ String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
 volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
     @Override
     public void OnSuccess(String result) {
-        Log.i(TAG, result);
+        //on success
     }
 
     @Override
     public void OnFailed(int code, String msg) {
-        Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+        //on failed
     }
 });
 
@@ -175,12 +174,12 @@ volleyPro.request(
     volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
         @Override
         public void OnSuccess(String result) {
-            Log.i(TAG, result);
+            //on success
         }
 
         @Override
         public void OnFailed(int code, String msg) {
-            Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+            //on failed
         }
 
         @Override
@@ -218,16 +217,16 @@ String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
 volleyPro.setOnEvent(new SimpleEvent<File>(File.class) {
     @Override
     public void OnSuccess(File file) {
-        Log.i(TAG, file.getAbsolutePath());
+        //on success
     }
 
     @Override
     public void OnFailed(int code, String msg) {
-        Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+        //on failed
     }
     @Override
     public void OnFileProgress(float progress) {
-        Log.i(TAG, String.format("OnFileProgress:%.2f", progress));
+        //on download progress changed
     }
 });
 
@@ -249,7 +248,7 @@ volleyPro.requestFile(
                             put("title", "this is title");
                         }}
                 )
-                //set parameters (optional)
+                //set cache (required)
                 .setCache(
                         //cache path
                         "data/data/" + getPackageName() + "/volleyCache.json",
@@ -267,49 +266,21 @@ volleyPro.requestFile(
 ```
 
   -  Generic after string request:
+  Example is `DataItem`, change `DataItem` to the class you need, VolleyPro will convert via gson automatically
 ```
 String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
 volleyPro.setOnEvent(new SimpleEvent<DataItem>(DataItem.class) {
     @Override
     public void OnSuccess(DataItem dataItem) {
-        Log.i(TAG, dataItem.getName());
+        //on success
     }
 
     @Override
     public void OnFailed(int code, String msg) {
-        Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+        //on failed
     }
 });
 
-volleyPro.request(
-        Method.GET,
-        endpoint,
-        new VolleyPro.Option()
-                //set header (optional)
-                .setHeader(
-                        new HashMap<String, String>() {{
-                            put("userid", "xxxx");
-                            put("usercode", "xxxx");
-                            put("apiKey", "xxxx");
-                        }}
-                )
-                //set parameters (optional)
-                .setParameters(
-                        new HashMap<String, String>() {{
-                            put("title", "this is title");
-                        }}
-                )
-                //set cahce (optional)
-                .setCache(
-                        //cache path
-                        "data/data/" + getPackageName() + "/volleyCache.json",
-
-                        //expired time (millisecond)
-                        6000,
-
-                        //if network is unavailable use older cache
-                        true
-                )
-);
+volleyPro.request(Method.GET, endpoint);
 
 ```
