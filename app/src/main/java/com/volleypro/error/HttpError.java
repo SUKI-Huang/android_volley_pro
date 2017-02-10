@@ -1,4 +1,4 @@
-package com.volleypro;
+package com.volleypro.error;
 
 import android.content.Context;
 
@@ -70,7 +70,9 @@ public class HttpError {
         private static Context context;
 
         public static void initialize(Context _context) {
-            context = _context;
+            if(context==null){
+                context = _context;
+            }
         }
 
         private static String NETWORK_UNAVAILABLE = "Network unavailable";

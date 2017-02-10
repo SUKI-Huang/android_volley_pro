@@ -1,4 +1,4 @@
-package com.volleypro;
+package com.volleypro.util;
 
 import android.support.annotation.NonNull;
 import android.util.Log;

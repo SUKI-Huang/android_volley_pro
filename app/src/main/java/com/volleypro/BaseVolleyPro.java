@@ -1,14 +1,10 @@
 package com.volleypro;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Handler;
-import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -18,18 +14,14 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.volleypro.enums.Method;
+import com.volleypro.error.HttpError;
+import com.volleypro.util.UtilVolley;
 
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,150 +30,30 @@ import java.util.Map;
  * Created by tony1 on 1/18/2017.
  */
 
-public class BaseVolleyPro<T> {
+public class BaseVolleyPro {
     private String TAG = getClass().getSimpleName();
-
-    public static final String SOURCE_CACHE = "cache";
-    public static final String SOURCE_NETWORK = "network";
-    public static final String SOURCE_NONE = "none";
-
-    public interface Event<T> {
-        void OnSuccess(T result);
-        void OnFileProgress(float progress);
-        void OnMultiPartProgress(float progress);
-    }
-
-    public static void initialize(Context context) {
-        HttpError.Message.initialize(context.getApplicationContext());
-    }
-
-    void OnSuccess(Object object) {
-        callOnSuccess(object);
-    }
-
-    void OnFailed(int code, String msg) {
-        callOnFailed(code, msg);
-    }
-
-    public enum Status {
-        SUCCESS,
-        FAILED
-    }
-
-    public enum Method {
-        GET,
-        POST,
-        PUT,
-        DELETE,
-        PATCH
-    }
-
-    public static int getMethod(Method method) {
-        switch (method) {
-            case GET:
-                return Request.Method.GET;
-            case POST:
-                return Request.Method.POST;
-            case PUT:
-                return Request.Method.PUT;
-            case DELETE:
-                return Request.Method.DELETE;
-            case PATCH:
-                return Request.Method.PATCH;
-            default:
-                return -1;
-        }
-    }
-
-    public static String getMethodName(Method method) {
-        switch (method) {
-            case GET:
-                return "GET";
-            case POST:
-                return "POST";
-            case PUT:
-                return "PUT";
-            case DELETE:
-                return "DELETE";
-            case PATCH:
-                return "PATCH";
-            default:
-                return "none";
-        }
-    }
-
-
-    public final void callOnSuccess(Object result) {
-        if (simpleEvent == null) {
-            return;
-        }
-        if((result instanceof String) && type.hashCode()==String.class.hashCode()){
-            simpleEvent.OnSuccess(result);
-            return;
-        }
-        if((result instanceof File) && type.hashCode()==File.class.hashCode()){
-            simpleEvent.OnSuccess(result);
-            return;
-        }
-
-        if(gson==null){
-            gson=new Gson();
-        }
-
-        if((result instanceof String)){
-            try {
-                simpleEvent.OnSuccess(gson.fromJson((String)result, type));
-            } catch (JsonSyntaxException e) {
-                e.printStackTrace();
-                simpleEvent.OnFailed(HttpError.Code.GSON_PARSE_ERROR, HttpError.Message.getMessage(HttpError.Code.GSON_PARSE_ERROR));
-            }
-            return;
-        }
-        Log.e(TAG,"callOnSuccess\t"+result.getClass().getSimpleName()+" can not cast to specified class");
-        simpleEvent.OnFailed(HttpError.Code.UNKNOW_ERROR, HttpError.Message.getMessage(HttpError.Code.UNKNOW_ERROR));
-
-
-    }
-
-    public final void callOnFileProgress(float progress) {
-        if (simpleEvent == null) {
-            return;
-        }
-        simpleEvent.OnFileProgress(progress);
-    }
-
-    public final void callOnMultiPartProgress(float progress) {
-        if (simpleEvent == null) {
-            return;
-        }
-        simpleEvent.OnMultiPartProgress(progress);
-    }
-
-
-    public final void callOnFailed(int code, String msg) {
-        if (simpleEvent == null) {
-            return;
-        }
-        simpleEvent.OnFailed(code, msg);
-    }
-
     private Context context;
     private Handler handler;
+
+    //request
     private RequestQueue requestQueue;
     private StringRequest stringRequest;
     private MultipartRequest multipartRequest;
     private InputStreamRequest inputStreamRequest;
-    private Type type;
     private SimpleEvent simpleEvent;
-    private Gson gson;
 
-
+    //params
     private int retryTimes = 0;
     private int timeout = 60000;
     private boolean isLoading = false;
 
+    //generic used
+    private Type type;
+    private Gson gson;
+
 
     public BaseVolleyPro(Context context) {
+        HttpError.Message.initialize(context.getApplicationContext());
         this.context = context;
         this.handler = new Handler();
         if (requestQueue == null) {
@@ -191,11 +63,11 @@ public class BaseVolleyPro<T> {
 
     public void setOnEvent(SimpleEvent simpleEvent) {
         this.simpleEvent = simpleEvent;
-        this.type=simpleEvent.getType();
+        this.type = simpleEvent.getType();
     }
 
-    public void setGson(Gson gson){
-        this.gson=gson;
+    public void setGson(Gson gson) {
+        this.gson = gson;
     }
 
     public final void request(String endpoint, final MultiPartOption multiPartOption) {
@@ -207,9 +79,9 @@ public class BaseVolleyPro<T> {
         //release request
         cancelRequest();
 
-        if (!isNetworkAvailable()) {
+        if (!UtilVolley.isNetworkAvailable(context)) {
             //network unavailable
-            OnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));
+            callOnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));
             return;
         }
 
@@ -217,7 +89,7 @@ public class BaseVolleyPro<T> {
             @Override
             public void onResponse(String result) {
                 isLoading = false;
-                OnSuccess(result);
+                callOnSuccess(result);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -227,7 +99,7 @@ public class BaseVolleyPro<T> {
 
                 boolean hasError = error != null && error.networkResponse != null;
 
-                OnFailed(hasError ? error.networkResponse.statusCode : HttpError.Code.UNKNOW_ERROR, HttpError.Message.getMessage(hasError ? error.networkResponse.statusCode : HttpError.Code.UNKNOW_ERROR));
+                callOnFailed(hasError ? error.networkResponse.statusCode : HttpError.Code.UNKNOW_ERROR, HttpError.Message.getMessage(hasError ? error.networkResponse.statusCode : HttpError.Code.UNKNOW_ERROR));
 
 
             }
@@ -243,7 +115,7 @@ public class BaseVolleyPro<T> {
 
             @Override
             public void onProgress(final long transferredBytes, final long totalSize) {
-                if (multiPartOption.isEnableFileProgress() && totalSize>0) {
+                if (multiPartOption.isEnableFileProgress() && totalSize > 0) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -274,27 +146,27 @@ public class BaseVolleyPro<T> {
         //release request
         cancelRequest();
         //check network
-        if (!isNetworkAvailable()) {
+        if (!UtilVolley.isNetworkAvailable(context)) {
             if (cacheResult != null && forceUseCacheOnNoNetwork) {
                 //force user cache on network unavailable
-                OnSuccess(cacheResult);
+                callOnSuccess(cacheResult);
             } else {
                 //network unavailable
-                OnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));
+                callOnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));
             }
             return;
         }
 
         //request
         stringRequest = new StringRequest(
-                getMethod(method),
+                UtilVolley.getMethod(method),
                 endpoint,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String result) {
                         isLoading = false;
-                        OnSuccess(result);
-                        writeCache(cachePath, result);
+                        callOnSuccess(result);
+                        UtilVolley.writeFileAsync(cachePath, result);
                     }
                 },
                 new Response.ErrorListener() {
@@ -303,13 +175,13 @@ public class BaseVolleyPro<T> {
                         isLoading = false;
                         if (cacheResult != null && (forceUseCacheOnNoNetwork != null && forceUseCacheOnNoNetwork)) {
                             //force user cache on network unavailable
-                            OnSuccess(cacheResult);
+                            callOnSuccess(cacheResult);
                             return;
                         } else {
                             //load failed
                             boolean hasError = error != null && error.networkResponse != null;
 
-                            OnFailed(hasError ? error.networkResponse.statusCode : HttpError.Code.UNKNOW_ERROR, HttpError.Message.getMessage(hasError ? error.networkResponse.statusCode : HttpError.Code.UNKNOW_ERROR));
+                            callOnFailed(hasError ? error.networkResponse.statusCode : HttpError.Code.UNKNOW_ERROR, HttpError.Message.getMessage(hasError ? error.networkResponse.statusCode : HttpError.Code.UNKNOW_ERROR));
                         }
 
                     }
@@ -342,25 +214,25 @@ public class BaseVolleyPro<T> {
         //release request
         cancelRequest();
         //check network
-        if (!isNetworkAvailable()) {
+        if (!UtilVolley.isNetworkAvailable(context)) {
             if (cacheResult != null && forceUseCacheOnNoNetwork) {
                 //force user cache on network unavailable
-                OnSuccess(cacheResult);
+                callOnSuccess(cacheResult);
             } else {
                 //network unavailable
-                OnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));
+                callOnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));
             }
             return;
         }
         inputStreamRequest = new InputStreamRequest(
-                getMethod(method),
+                UtilVolley.getMethod(method),
                 endpoint,
                 new Response.Listener<byte[]>() {
                     @Override
                     public void onResponse(byte[] result) {
                         isLoading = false;
-                        writeCache(result, cachePath);
-                        OnSuccess(new File(cachePath));
+                        UtilVolley.writeByteAsync(result, cachePath);
+                        callOnSuccess(new File(cachePath));
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -368,13 +240,13 @@ public class BaseVolleyPro<T> {
                 isLoading = false;
                 if (cacheResult != null && (forceUseCacheOnNoNetwork != null && forceUseCacheOnNoNetwork)) {
                     //force user cache on network unavailable
-                    OnSuccess(cacheResult);
+                    callOnSuccess(cacheResult);
                     return;
                 } else {
                     //load failed
                     boolean hasError = error != null && error.networkResponse != null;
                     int errorCode = error.networkResponse.statusCode;
-                    OnFailed(hasError ? errorCode : HttpError.Code.UNKNOW_ERROR, HttpError.Message.getMessage(hasError ? errorCode : HttpError.Code.UNKNOW_ERROR));
+                    callOnFailed(hasError ? errorCode : HttpError.Code.UNKNOW_ERROR, HttpError.Message.getMessage(hasError ? errorCode : HttpError.Code.UNKNOW_ERROR));
                 }
 
             }
@@ -397,7 +269,7 @@ public class BaseVolleyPro<T> {
 
             @Override
             public void onProgress(final long transferredBytes, final long totalSize) {
-                if (enableProgress && totalSize>0) {
+                if (enableProgress && totalSize > 0) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -414,7 +286,7 @@ public class BaseVolleyPro<T> {
         requestQueue.add(inputStreamRequest);
     }
 
-    private void cancelRequest() {
+    public void cancelRequest() {
         if (stringRequest != null) {
             if (!stringRequest.isCanceled()) {
                 stringRequest.cancel();
@@ -438,46 +310,6 @@ public class BaseVolleyPro<T> {
 
     }
 
-    private void writeCache(final String cachePath, final String result) {
-
-        if (cachePath == null) {
-            return;
-        }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                writeFile(cachePath, result);
-            }
-        }).start();
-    }
-
-    private void writeCache(byte[] response, String filePath) {
-        if (response == null) {
-            return;
-        }
-        int count;
-        try {
-            long lenghtOfFile = response.length;
-
-            //covert reponse to input stream
-            InputStream input = new ByteArrayInputStream(response);
-            File file = new File(filePath);
-            BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(file));
-            byte data[] = new byte[1024];
-//                            long total = 0;
-            while ((count = input.read(data)) != -1) {
-//                                total += count;
-                output.write(data, 0, count);
-            }
-
-            output.flush();
-            output.close();
-            input.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public boolean isLoading() {
         return isLoading;
     }
@@ -498,76 +330,57 @@ public class BaseVolleyPro<T> {
         this.timeout = timeout;
     }
 
-    public boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return (activeNetworkInfo != null) && activeNetworkInfo.isConnected();
-    }
-
-    public static boolean isFileExist(String path) {
-        if (path == null) {
-            return false;
-        }
-        File f = new File(path);
-        return f.exists();
-    }
-
-    public static boolean isFileExpired(String path, long expiredDuration) {
-        if (path == null) {
-            return true;
-        }
-        File file = new File(path);
-        if (file.exists()) {
-            long lastModified = file.lastModified();
-            if (System.currentTimeMillis() - lastModified > expiredDuration) {
-                return true;
-            } else {
-                return false;
-            }
-
-        } else {
-            return true;
-        }
-
-    }
-
-    public static String readFile(String filePath) {
-        try {
-            StringBuffer fileData = new StringBuffer();
-            BufferedReader reader = new BufferedReader(
-                    new FileReader(filePath));
-            char[] buf = new char[1024];
-            int numRead = 0;
-            while ((numRead = reader.read(buf)) != -1) {
-                String readData = String.valueOf(buf, 0, numRead);
-                fileData.append(readData);
-            }
-            reader.close();
-            return fileData.toString();
-        } catch (Exception e) {
-//            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static void writeFile(String filePath, String message) {
-        try {
-            FileOutputStream output = new FileOutputStream(filePath);
-            output.write(message.getBytes());
-            output.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void deleteFile(String path) {
-        if (path == null) {
+    public final void callOnSuccess(Object result) {
+        if (simpleEvent == null) {
             return;
         }
-        File file = new File(path);
-        if (file.exists()) {
-            file.delete();
+        if ((result instanceof String) && type.hashCode() == String.class.hashCode()) {
+            simpleEvent.OnSuccess(result);
+            return;
         }
+        if ((result instanceof File) && type.hashCode() == File.class.hashCode()) {
+            simpleEvent.OnSuccess(result);
+            return;
+        }
+
+        if (gson == null) {
+            gson = new Gson();
+        }
+
+        if ((result instanceof String)) {
+            try {
+                simpleEvent.OnSuccess(gson.fromJson((String) result, type));
+            } catch (JsonSyntaxException e) {
+                e.printStackTrace();
+                simpleEvent.OnFailed(HttpError.Code.GSON_PARSE_ERROR, HttpError.Message.getMessage(HttpError.Code.GSON_PARSE_ERROR));
+            }
+            return;
+        }
+        Log.e(TAG, "callOnSuccess\t" + result.getClass().getSimpleName() + " can not cast to specified class");
+        simpleEvent.OnFailed(HttpError.Code.UNKNOW_ERROR, HttpError.Message.getMessage(HttpError.Code.UNKNOW_ERROR));
+
+
+    }
+
+    public final void callOnFileProgress(float progress) {
+        if (simpleEvent == null) {
+            return;
+        }
+        simpleEvent.OnFileProgress(progress);
+    }
+
+    public final void callOnMultiPartProgress(float progress) {
+        if (simpleEvent == null) {
+            return;
+        }
+        simpleEvent.OnMultiPartProgress(progress);
+    }
+
+    public final void callOnFailed(int code, String msg) {
+        if (simpleEvent == null) {
+            return;
+        }
+        simpleEvent.OnFailed(code, msg);
     }
 
     public static class Option {
@@ -697,6 +510,34 @@ public class BaseVolleyPro<T> {
                 multipartEntityBuilder.addPart(key, parameters.get(key));
             }
             return multipartEntityBuilder;
+        }
+    }
+
+    public interface Event<T> {
+        void OnSuccess(T result);
+
+        void OnFileProgress(float progress);
+
+        void OnMultiPartProgress(float progress);
+    }
+
+    public static boolean enableLog = true;
+
+    public static void enableLog(boolean b) {
+        BaseVolleyPro.enableLog = b;
+    }
+
+    public static class Log {
+        public static void i(String str, String msg) {
+            if (enableLog) {
+                android.util.Log.i(str, msg);
+            }
+        }
+
+        public static void e(String str, String msg) {
+            if (enableLog) {
+                android.util.Log.e(str, msg);
+            }
         }
     }
 

@@ -1,7 +1,10 @@
 package com.volleypro;
 
 import android.content.Context;
-import android.util.Log;
+
+import com.volleypro.enums.Method;
+import com.volleypro.error.HttpError;
+import com.volleypro.util.UtilVolley;
 
 import java.io.File;
 import java.util.HashMap;
@@ -42,25 +45,25 @@ public class VolleyPro extends BaseVolleyPro {
             forceUseCacheOnNoNetwork=option.isForceUseCacheOnNoNetwork();
         }
 
-        boolean isNetworkAvailable=isNetworkAvailable();
-        boolean isCacheExist=isFileExist(cachePath);
-        boolean isCacheExpired=isFileExpired(cachePath,expiredDuration);
-        String cacheResult=readFile(cachePath);
+        boolean isNetworkAvailable= UtilVolley.isNetworkAvailable(context);
+        boolean isCacheExist=UtilVolley.isFileExist(cachePath);
+        boolean isCacheExpired=UtilVolley.isFileExpired(cachePath,expiredDuration);
+        String cacheResult=UtilVolley.readFile(cachePath);
 
         if(isNetworkAvailable){
             if(isCacheExist && !isCacheExpired){
-                log(method, endpoint,SOURCE_CACHE);
+                log(method, endpoint,UtilVolley.SOURCE_CACHE);
                 callOnSuccess(cacheResult);
             }else{
-                log(method, endpoint,SOURCE_NETWORK);
+                log(method, endpoint,UtilVolley.SOURCE_NETWORK);
                 request(method, endpoint, header, parameters,cachePath,cacheResult , forceUseCacheOnNoNetwork);
             }
         }else{
             if(isCacheExist && forceUseCacheOnNoNetwork){
-                log(method, endpoint,SOURCE_CACHE);
+                log(method, endpoint,UtilVolley.SOURCE_CACHE);
                 callOnSuccess(cacheResult);
             }else{
-                log(method, endpoint,SOURCE_NONE);
+                log(method, endpoint,UtilVolley.SOURCE_NONE);
                 callOnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));
             }
         }
@@ -93,25 +96,25 @@ public class VolleyPro extends BaseVolleyPro {
             return this;
         }
 
-        boolean isNetworkAvailable=isNetworkAvailable();
-        boolean isCacheExist=isFileExist(cachePath);
-        boolean isCacheExpired=isFileExpired(cachePath,expiredDuration);
+        boolean isNetworkAvailable=UtilVolley.isNetworkAvailable(context);
+        boolean isCacheExist=UtilVolley.isFileExist(cachePath);
+        boolean isCacheExpired=UtilVolley.isFileExpired(cachePath,expiredDuration);
         File cacheResult=new File(cachePath);
 
         if(isNetworkAvailable){
             if(isCacheExist && !isCacheExpired){
-                log(method, endpoint,SOURCE_CACHE);
+                log(method, endpoint,UtilVolley.SOURCE_CACHE);
                 callOnSuccess(cacheResult);
             }else{
-                log(method, endpoint,SOURCE_NETWORK);
+                log(method, endpoint,UtilVolley.SOURCE_NETWORK);
                 requestFile(method, endpoint, header, parameters,cachePath,cacheResult , forceUseCacheOnNoNetwork,enableFileProgress);
             }
         }else{
             if(isCacheExist && forceUseCacheOnNoNetwork){
-                log(method, endpoint,SOURCE_CACHE);
+                log(method, endpoint,UtilVolley.SOURCE_CACHE);
                 callOnSuccess(cacheResult);
             }else{
-                log(method, endpoint,SOURCE_NONE);
+                log(method, endpoint,UtilVolley.SOURCE_NONE);
                 callOnFailed(HttpError.Code.NETWORK_UNAVAILABLE, HttpError.Message.getMessage(HttpError.Code.NETWORK_UNAVAILABLE));
             }
         }
@@ -119,6 +122,9 @@ public class VolleyPro extends BaseVolleyPro {
     }
 
     private void log(final Method method, final String endpoint, String source){
+        if(!enableLog){
+            return;
+        }
         HashMap<String, String> header=null;
         HashMap<String, String> parameters=null;
         String cachePath=null;
@@ -135,7 +141,7 @@ public class VolleyPro extends BaseVolleyPro {
 
         Log.i(TAG,"request======================================");
         Log.i(TAG,String.format("%24s","source : ")+source);
-        Log.i(TAG,String.format("%24s","method : ")+getMethodName(method));
+        Log.i(TAG,String.format("%24s","method : ")+UtilVolley.getMethodName(method));
         Log.i(TAG,String.format("%24s","endpoint : ")+endpoint);
         Log.i(TAG,String.format("%24s","cachePath : ")+cachePath);
         Log.i(TAG,String.format("%24s","expiredDuration : ")+expiredDuration);
@@ -160,7 +166,7 @@ public class VolleyPro extends BaseVolleyPro {
         if(option==null){
             return;
         }
-        deleteFile(option.getCachePath());
+        UtilVolley.deleteFile(option.getCachePath());
     }
 
 
