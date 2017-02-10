@@ -82,7 +82,7 @@ volleyPro.request(Method.GET, endpoint);
 
 ```
 
-  -  Basic string request with header and parameters:
+  -  String request with header and parameters:
 ```
 String endpoint = "https://xxx.xxx.xxx/xxx/xx/xx";
 volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
@@ -120,8 +120,7 @@ volleyPro.request(
 );
 
 ```
-
-  -  String request(advanced):
+  -  String request with header, parameters, and cache setting :
 ```
 String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
 volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
@@ -184,7 +183,7 @@ volleyPro.request(
 
         @Override
         public void OnMultiPartProgress(float progress) {
-            Log.i(TAG, String.format("OnMultiPartProgress:%.2f", progress));
+            //uplaod progress
         }
     });
 
