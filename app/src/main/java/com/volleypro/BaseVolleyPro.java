@@ -483,8 +483,8 @@ public class BaseVolleyPro {
             return enableMultiPartProgress;
         }
 
-        public MultiPartOption setEnableMultiPartProgress(boolean enableMultiPartProgress) {
-            this.enableMultiPartProgress = enableMultiPartProgress;
+        public MultiPartOption enableMultiPartProgress() {
+            this.enableMultiPartProgress = true;
             return this;
         }
 
