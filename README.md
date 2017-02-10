@@ -1,5 +1,5 @@
 # What is VolleyPro?
-This library is basic on [android-volley](https://github.com/mcxiaoke/android-volley), in order to decrease code and save developer's time, it easier to use than orginal volley library.
+This library is base on [android-volley](https://github.com/mcxiaoke/android-volley), in order to decrease code and save developer's time, it easier to use than orginal volley library.
 
 # Why VolleyPro?
 In the oringal Volley project, there are many kinds of request, developers use complicated flow and lots of code to build request, in addition, the usability of cache feature is not enough, so this is what VolleyPro solve for.
@@ -52,7 +52,7 @@ dependencies {
 #apache
 -keep class org.apache.http.** { *; }
 -keep class org.apache.commons.codec.** { *; }
--keep class org.apache.commons.logging.** { *; }
+-keep class org.apace.commons.logging.** { *; }
 
 #android net relative
 -keep class com.android.internal.http.multipart.** { *; }
@@ -64,7 +64,48 @@ dependencies {
 
 **3. In your Java code**
 
-  -  String request:
+  -  String request(basic):
+```
+private String TAG = getClass().getSimpleName();
+private VolleyPro volleyPro;
+
+public void initAction() {
+    volleyPro.setOnEvent(new SimpleEvent<String>(String.class) {
+        @Override
+        public void OnSuccess(String result) {
+            Log.i(TAG, result);
+        }
+
+        @Override
+        public void OnFailed(int code, String msg) {
+            Log.i(TAG, String.format("OnFailed\tcode:%d\tmsg:%s", code, msg));
+        }
+    });
+}
+
+private void load() {
+    String endpoint = "https://xxx.xxx.xxx/xxx/xx/xx";
+
+    //request with method GET
+    volleyPro.request(Method.GET, endpoint);
+
+    //request with method POST
+    volleyPro.request(
+            Method.POST,
+            endpoint,
+            new BaseVolleyPro.Option().setParameters(
+                    new HashMap<String, String>() {
+                        {
+                            put("name", "Suki");
+                            put("gender", "1");
+                        }
+                    }
+            )
+    );
+}
+```
+
+  -  String request(advanced):
 ```
 private String TAG = getClass().getSimpleName();
 private VolleyPro volleyPro;
