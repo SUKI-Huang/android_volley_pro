@@ -334,6 +334,10 @@ public class BaseVolleyPro {
     }
 
     public final void callOnSuccess(Object result) {
+        if(result ==null){
+            simpleEvent.OnFailed(HttpError.Code.GSON_PARSE_ERROR, HttpError.Message.getMessage(HttpError.Code.GSON_PARSE_ERROR));
+            return;
+        }
         if (simpleEvent == null) {
             return;
         }
