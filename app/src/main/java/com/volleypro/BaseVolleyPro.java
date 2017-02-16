@@ -66,8 +66,9 @@ public class BaseVolleyPro {
         this.type = simpleEvent.getType();
     }
 
-    public void setGson(Gson gson) {
+    public BaseVolleyPro setGson(Gson gson) {
         this.gson = gson;
+        return this;
     }
 
     public final void request(String endpoint, final MultiPartOption multiPartOption) {
