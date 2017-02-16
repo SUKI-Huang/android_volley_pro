@@ -285,6 +285,27 @@ volleyPro.request(Method.GET, endpoint);
 
 ```
 
+  -  Generic after string request (ArrayList):
+  
+  Example is `DataItem`, change `DataItem` to the class you need, VolleyPro will convert via gson automatically
+```
+String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
+volleyPro.setOnEvent(new SimpleEvent<ArrayList<DataItem>>((Class<ArrayList<User>>) new ArrayList<DataItem>().getClass()) {
+    @Override
+    public void OnSuccess(DataItem dataItem) {
+        //on success
+    }
+
+    @Override
+    public void OnFailed(int code, String msg) {
+        //on failed
+    }
+});
+
+volleyPro.request(Method.GET, endpoint);
+
+```
+
 ## License
 
 
