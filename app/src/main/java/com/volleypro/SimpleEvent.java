@@ -1,17 +1,19 @@
 package com.volleypro;
 
+import java.lang.reflect.Type;
+
 /**
  * Created by tony1 on 2/3/2017.
  */
 
 public class SimpleEvent<T> implements BaseVolleyPro.Event<T> {
-    private Class<?> type;
+    private Type type;
 
-    public SimpleEvent(Class<T> type) {
+    public SimpleEvent(Type type) {
         this.type = type;
     }
 
-    public Class<?> getType() {
+    public Type getType() {
         return type;
     }
 
