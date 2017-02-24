@@ -290,9 +290,9 @@ volleyPro.request(Method.GET, endpoint);
   Example is `DataItem`, change `DataItem` to the class you need, VolleyPro will convert via gson automatically
 ```
 String endpoint="https://xxx.xxx.xxx/xxx/xx/xx";
-volleyPro.setOnEvent(new SimpleEvent<ArrayList<DataItem>>((Class<ArrayList<User>>) new ArrayList<DataItem>().getClass()) {
+volleyPro.setOnEvent(new SimpleEvent<ArrayList<DataItem>>(new TypeToken<ArrayList<DataItem>>(){}.getType()) {
     @Override
-    public void OnSuccess(DataItem dataItem) {
+    public void OnSuccess(ArrayList<DataItem> result) {
         //on success
     }
 
