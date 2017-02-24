@@ -35,7 +35,7 @@ android {
     ...
 }
 dependencies {
-    compile 'com.github.SUKI-Huang:android_volley_pro:1.0.16'
+    compile 'com.github.SUKI-Huang:android_volley_pro:1.0.19'
     //Libraries down below are required
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.android.support:support-annotations:25.1.1'
