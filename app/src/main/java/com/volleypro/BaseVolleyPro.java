@@ -72,7 +72,7 @@ public class BaseVolleyPro {
         return this;
     }
 
-    public final void request(String endpoint, final MultiPartOption multiPartOption) {
+    public final void request(Method method,String endpoint, final MultiPartOption multiPartOption) {
         boolean hasOption = (multiPartOption != null && multiPartOption.getParameters() != null);
         if (!hasOption) {
             throw new RuntimeException("multi part option is null");
@@ -87,7 +87,7 @@ public class BaseVolleyPro {
             return;
         }
 
-        multipartRequest = new MultipartRequest(endpoint, multiPartOption.getMultipartEntityBuilder(), new Response.Listener<String>() {
+        multipartRequest = new MultipartRequest(UtilVolley.getMethod(method),endpoint, multiPartOption.getMultipartEntityBuilder(), new Response.Listener<String>() {
             @Override
             public void onResponse(String result) {
                 isLoading = false;

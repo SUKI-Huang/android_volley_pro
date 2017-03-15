@@ -38,9 +38,9 @@ public class MultipartRequest extends Request<String> implements Response.Progre
 		return this;
 	}
 
-	public MultipartRequest(String url, MultipartEntityBuilder entity, Listener<String> listener, ErrorListener errorListener)
+	public MultipartRequest(int method,String url, MultipartEntityBuilder entity, Listener<String> listener, ErrorListener errorListener)
     {
-        super(Method.POST, url, errorListener);
+        super(method, url, errorListener);
         this.entity = entity;
         this.mListener = listener;
     }
