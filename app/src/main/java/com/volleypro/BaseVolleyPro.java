@@ -72,7 +72,7 @@ public class BaseVolleyPro {
         return this;
     }
 
-    public final void request(Method method, String endpoint, final MultiPartOption multiPartOption) {
+    public final void requestMultiPart(Method method, String endpoint, final MultiPartOption multiPartOption) {
         boolean hasOption = (multiPartOption != null && multiPartOption.getParameters() != null);
         if (!hasOption) {
             throw new RuntimeException("multi part option is null");
