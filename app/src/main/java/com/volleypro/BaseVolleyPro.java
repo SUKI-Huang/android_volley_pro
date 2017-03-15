@@ -18,6 +18,7 @@ import com.volleypro.enums.Method;
 import com.volleypro.error.HttpError;
 import com.volleypro.util.UtilVolley;
 
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
 
@@ -516,6 +517,8 @@ public class BaseVolleyPro {
             for (String key : parameters.keySet()) {
                 multipartEntityBuilder.addPart(key, parameters.get(key));
             }
+
+            multipartEntityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
             return multipartEntityBuilder;
         }
     }
