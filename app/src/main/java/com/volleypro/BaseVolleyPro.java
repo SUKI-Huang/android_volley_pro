@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.volleypro.enums.Method;
 import com.volleypro.error.HttpError;
+import com.volleypro.util.ContentHashMap;
 import com.volleypro.util.UtilVolley;
 
 import org.apache.http.entity.mime.HttpMultipartMode;
@@ -80,6 +81,7 @@ public class BaseVolleyPro {
 
         //release request
         cancelRequest();
+        log(method,multiPartOption,endpoint,UtilVolley.SOURCE_NETWORK);
 
         if (!UtilVolley.isNetworkAvailable(context)) {
             //network unavailable
@@ -335,6 +337,38 @@ public class BaseVolleyPro {
         this.timeout = timeout;
     }
 
+    private void log(final Method method, final MultiPartOption option, final String endpoint, String source){
+        if(!enableLog){
+            return;
+        }
+        HashMap<String, String> header=null;
+        HashMap<String, String> parameters=null;
+
+        if(option!=null){
+            header=option.getHeader();
+            parameters=option.getParameters().getLogMap();
+        }
+
+        Log.i(TAG,"multi request======================================");
+        Log.i(TAG,String.format("%24s","source : ")+source);
+        Log.i(TAG,String.format("%24s","method : ")+UtilVolley.getMethodName(method));
+        Log.i(TAG,String.format("%24s","endpoint : ")+endpoint);
+        if(header!=null){
+            for (String key: header.keySet()) {
+                Log.i(TAG,String.format("%24s","header : ")+String.format("%s : %s",key,header.get(key)));
+            }
+        }
+
+        if(parameters!=null){
+            for (String key: parameters.keySet()) {
+                Log.i(TAG, String.format("%24s", "parameters : ") + String.format("%s : %s", key,parameters.get(key)));
+            }
+        }
+
+
+        Log.i(TAG,"multi request======================================");
+    }
+
     public final void callOnSuccess(Object result) {
         if (result == null) {
             simpleEvent.OnFailed(HttpError.Code.GSON_PARSE_ERROR, HttpError.Message.getMessage(HttpError.Code.GSON_PARSE_ERROR));
@@ -365,7 +399,6 @@ public class BaseVolleyPro {
             }
             return;
         }
-        Log.e(TAG, "callOnSuccess\t" + result.getClass().getSimpleName() + " can not cast to specified class");
         simpleEvent.OnFailed(HttpError.Code.UNKNOW_ERROR, HttpError.Message.getMessage(HttpError.Code.UNKNOW_ERROR));
 
 
@@ -479,7 +512,7 @@ public class BaseVolleyPro {
     public static class MultiPartOption {
         private boolean enableMultiPartProgress = false;
         private HashMap<String, String> header;
-        private HashMap<String, ContentBody> parameters;
+        private ContentHashMap<String, ContentBody> parameters;
 
         public HashMap<String, String> getHeader() {
             return header;
@@ -499,11 +532,11 @@ public class BaseVolleyPro {
             return this;
         }
 
-        public HashMap<String, ContentBody> getParameters() {
+        public ContentHashMap<String, ContentBody> getParameters() {
             return parameters;
         }
 
-        public MultiPartOption setParameters(HashMap<String, ContentBody> parameters) {
+        public MultiPartOption setParameters(ContentHashMap<String, ContentBody> parameters) {
             this.parameters = parameters;
             return this;
         }

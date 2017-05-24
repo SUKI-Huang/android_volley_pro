@@ -5,6 +5,8 @@
       <module fileurl="file://$PROJECT_DIR$/VolleyPro.iml" filepath="$PROJECT_DIR$/VolleyPro.iml" />
       <module fileurl="file://$PROJECT_DIR$/android_volley_pro.iml" filepath="$PROJECT_DIR$/android_volley_pro.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/volleyPro.iml" filepath="$PROJECT_DIR$/volleyPro.iml" />
     </modules>
   </component>
 </project>

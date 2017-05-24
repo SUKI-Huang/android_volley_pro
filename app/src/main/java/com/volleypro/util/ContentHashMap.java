@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 public class ContentHashMap<String,ContentBody> extends HashMap<String,ContentBody> {
     private String TAG= (String) getClass().getSimpleName();
+    private HashMap<String,String> logMap=new HashMap<>();
 
    public void putText(String key,String value){
        if(key==null){
@@ -38,7 +39,7 @@ public class ContentHashMap<String,ContentBody> extends HashMap<String,ContentBo
            Log.e((java.lang.String) TAG,"UnsupportedEncodingException");
            e.printStackTrace();
        }
-
+       logMap.put(key,value);
        put(key, (ContentBody) new StringBody((java.lang.String) value,  ContentType.DEFAULT_TEXT));
    }
 
@@ -74,6 +75,8 @@ public class ContentHashMap<String,ContentBody> extends HashMap<String,ContentBo
                 return;
             }
         }
+
+        logMap.put(key, (String) ("file："+file.getAbsolutePath()));
         put(key, (ContentBody) new FileBody(file, ContentType.DEFAULT_BINARY, file != null ? file.getName() : null));
     }
 
@@ -86,6 +89,7 @@ public class ContentHashMap<String,ContentBody> extends HashMap<String,ContentBo
             Log.e((java.lang.String) TAG,"putBinary, bytes is null");
             return;
         }
+        logMap.put(key, (String) ("bytes length："+bytes.length));
         put(key, (ContentBody) new ByteArrayBody(bytes, ContentType.DEFAULT_BINARY, fileName));
     }
 
@@ -98,6 +102,11 @@ public class ContentHashMap<String,ContentBody> extends HashMap<String,ContentBo
             Log.e((java.lang.String) TAG,"putStream, inputStream is null");
             return;
         }
+        logMap.put(key, (String) "steam content");
         put(key, (ContentBody) new InputStreamBody(inputStream, ContentType.DEFAULT_BINARY, fileName));
+    }
+
+    public HashMap<String,String> getLogMap(){
+        return logMap;
     }
 }

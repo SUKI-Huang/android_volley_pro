@@ -115,7 +115,6 @@ public class MultipartRequest extends Request<String> implements Response.Progre
 		public void write(byte[] b, int off, int len) throws IOException {
 			out.write(b, off, len);
 			transferred += len;
-			Log.i("MultipartRequest","write\ttransferred:"+transferred);
 			if (onMultiPartProgress != null) {
 				this.onMultiPartProgress.onProgress(transferred, fileLength);
 			}
@@ -124,7 +123,6 @@ public class MultipartRequest extends Request<String> implements Response.Progre
 		public void write(int b) throws IOException {
 			out.write(b);
 			this.transferred++;
-			Log.i("MultipartRequest","write\ttransferred:"+transferred);
 			if (onMultiPartProgress != null) {
 				this.onMultiPartProgress.onProgress(transferred, fileLength);
 			}
