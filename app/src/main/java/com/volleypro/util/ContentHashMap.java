@@ -11,6 +11,8 @@ import org.apache.http.entity.mime.content.StringBody;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 
 /**
@@ -38,7 +40,17 @@ public class ContentHashMap<String, ContentBody> extends HashMap<String, Content
 //            e.printStackTrace();
 //        }
         logMap.put(key, value);
-        put(key, (ContentBody) new StringBody((java.lang.String) value, ContentType.DEFAULT_TEXT));
+
+        try {
+            put(key, (ContentBody) new StringBody((java.lang.String) value, Charset.forName("UTF-8")));
+        } catch (UnsupportedEncodingException e) {
+            try {
+                put(key, (ContentBody) new StringBody((java.lang.String) value, Charset.defaultCharset()));
+            } catch (UnsupportedEncodingException e1) {
+                put(key, (ContentBody) new StringBody((java.lang.String) value, ContentType.DEFAULT_TEXT));
+            }
+        }
+//        put(key, (ContentBody) new StringBody((java.lang.String) value, ContentType.DEFAULT_TEXT));
     }
 
     public void putFile(String key, String filePath) {
