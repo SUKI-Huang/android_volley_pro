@@ -168,6 +168,4 @@ public class VolleyPro extends BaseVolleyPro {
         }
         UtilVolley.deleteFile(option.getCachePath());
     }
-
-
 }

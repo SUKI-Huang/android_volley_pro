@@ -583,6 +583,4 @@ public class BaseVolleyPro {
             }
         }
     }
-
-
 }
