@@ -33,12 +33,6 @@ public class ContentHashMap<String, ContentBody> extends HashMap<String, Content
             return;
         }
 
-//        try {
-//            value = (String) URLEncoder.encode((java.lang.String) value, "utf-8");
-//        } catch (UnsupportedEncodingException e) {
-//            Log.e((java.lang.String) TAG, "UnsupportedEncodingException");
-//            e.printStackTrace();
-//        }
         logMap.put(key, value);
 
         try {
